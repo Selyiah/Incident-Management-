@@ -1,0 +1,56 @@
+Overview
+
+This automation has been created for bugs to structure the description. Once a bug has been created, the description is 
+replaced with the following headers:
+
+Summary of Incident
+
+Impact
+
+Mitigation
+
+Resolution
+
+Notified Parties
+
+Automation Rule
+
+Rule name: Incident Template
+
+Logic:
+
+Trigger: When work item created
+
+Condition: When Issue Type = ‘🐞Bug’
+
+Condition: IF description is empty
+
+THEN: work item description is cleared and replaced with:
+
+h3. Summary of Incident
+h3. Impact
+h3. Mitigation Plan
+h3. Resolution
+h3. Notified Parties
+DE
+
+ELSE: Essentially if the description is not empty:
+
+THEN: Add comment to work item:
+
+Original description captured on creation:
+
+{{issue.description}}
+
+AND: work item description is cleared and replaced with:
+
+h3. Summary of Incident
+h3. Impact
+h3. Mitigation Plan
+h3. Resolution
+h3. Notified Parties
+DE
+
+Result
+
+This rule ensures uniformity and consistency across incidents. It improves efficiency by removing the need to manually add predefined headers or relocate key information, ensuring uniform and complete documentation across all incidents.
