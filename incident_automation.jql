@@ -1,0 +1,144 @@
+⚙️ Third-party integrated Incident Automation - End-to-End Process
+
+Overview
+
+This automation ensures that any incident email sent by Purple Frog (PF) to the shared mailbox dataservice@.com is 
+automatically:
+
+Moved into a dedicated Outlook folder,
+
+Picked up by Jira to create a ticket in the Data Production Incidents project, and
+
+Triggers an instant email alert to designated recipients.
+
+Process Flow
+
+Purple Frog → dataservice@.com → Outlook Folder (Jira_ThirdParty_Incidents)
+→ Jira Mail Handler → Ticket Creation → Automation Rule → Email Alert
+
+
+1️⃣ Outlook Configuration
+
+Mailbox: dataservice@.com
+Purpose: Capture only PF incident emails in a controlled subfolder.
+
+Steps:
+
+Folder created: Inbox/Jira_PF_Incidents
+
+Rule setup:
+
+Condition: “From” contains support@thirdparty.com
+
+Action: Move message to Inbox/Jira_ThirdParty_Incidents
+
+Option: Stop processing more rules ✅
+
+Result:
+Only ThirdParty-related messages are routed to the Jira folder.
+All other vendor or system messages stay in the main inbox.
+
+2️⃣ Jira Mail Handler
+
+Path: Settings → System → Incoming Mail
+Handler: Data Production Incidents Mailbox
+
+Field
+
+Value
+
+Incoming Mail Server
+
+Data Production Incidents (DataService)
+
+Authentication
+
+Microsoft OAuth
+
+Folder Name
+
+Inbox/Jira_ThirdParty_Incidents
+
+Project
+
+Data Production Incidents
+
+Issue Type
+
+Bug (Incident)
+
+Default Reporter
+
+Selyiah
+
+Bulk Email Filter
+
+Enabled
+
+Behaviour:
+Jira polls only that folder and auto-creates new tickets in the Data Production Incidents project whenever a new 
+ThirdParty email arrives.
+
+3️⃣ Jira Automation Rule
+
+Path: Project Settings → Automation → Rules
+Rule name: Email Alert – New Incident in Backlog
+
+Logic:
+
+Trigger: When a work item is created
+
+Condition (JQL):
+
+project = "Data Production Incidents"
+AND issuetype = Bug
+AND status = Backlog
+
+
+Action: Send email to recipients
+
+To: selyiah@.com, 
+
+Subject:
+
+[New Incident Created] {{issue.key}} – {{issue.summary}}
+
+
+Body:
+
+A new incident has been created in Jira.
+
+• Project: {{project.name}}
+• Key: {{issue.key}}
+• Type: {{issue.issuetype.name}}
+• Summary: {{issue.summary}}
+• Status: {{issue.status.name}}
+• Reporter: {{issue.reporter.displayName}}
+• Created: {{issue.created.format("dd/MM/yyyy HH:mm")}}
+
+🔗 [Open Jira Ticket {{issue.key}}]({{issue.url}})
+
+
+Result:
+Every new incident entering Backlog (including PF-created tickets) triggers an immediate email alert to the recipients 
+listed.
+
+4️⃣ End-to-End Validation
+
+✅ PF sends test email →
+✅ Outlook rule moves it to Jira_ThirdParty_Incidents →
+✅ Jira mail handler creates ticket in Data Production Incidents →
+✅ Automation rule sends email alert to recipients.
+
+5️⃣ Maintenance Notes
+
+If PF changes sender domain → update Outlook rule condition.
+
+If Jira stops picking up emails → check mail handler folder path & OAuth connection.
+
+If alerts stop → check the automation Audit Log for failed runs.
+
+To add new alert recipients → edit the Send email action in the rule.
+
+Folder name in Jira must exactly match Outlook (Inbox/Jira_ThirdParty_Incidents).
+
